@@ -77,7 +77,21 @@
 ---
 
 
-## 🧩 How It Works (In Plain English)
+
+## 🖥️ How to Use the Demo HTML UI
+
+Open [http://localhost:8000/](http://localhost:8000/) in your browser after starting the project. The demo page lets you try all APIs visually:
+
+- **Product Autocomplete**: Enter at least 3 letters in the box and click "Autocomplete". See product name suggestions (calls `/api/search/suggest/?q=...`).
+- **Order Listing**: Enter a Store ID and click "Show Orders" to see all orders for that store (`/api/stores/<store_id>/orders/`).
+- **Stores**: Click "Show Stores" to list all stores (`/api/stores/`).
+- **Product List**: Click "Load Products" to see all products (`/api/products/`).
+- **Product Detail**: Enter a Product ID and click "Get Detail" to see info for that product (`/api/products/<id>/`).
+- **Search Products**: Enter a keyword and click "Search" to search products (`/api/search/products/?q=...`).
+- **Order Product**: Enter Store ID, Product ID, and Quantity, then click "Order" to place an order (`POST /api/orders/`).
+- **Inventory**: Enter a Store ID and click "Show Inventory" to see all products and quantities for that store (`/api/stores/<store_id>/inventory/`).
+
+Each section shows results or errors directly below the form. You can use these to demo all major features without writing any code!
 
 - **Products, Stores, Orders, Inventory:** All modeled with Django ORM, with clear relationships and constraints.
 - **Async Order Confirmation:** Placing an order triggers a background Celery task (simulates real-world async workflows).
