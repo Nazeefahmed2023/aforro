@@ -57,7 +57,24 @@ Here’s how each section of the HTML demo maps to the backend APIs:
 | Order Product          | POST /api/orders/                        | Places a new order                            |
 | Inventory              | GET /api/stores/<store_id>/inventory/    | Shows inventory for a store                   |
 
-All these features work together: for example, you can use the Product List to find a Product ID, then use that ID to place an order or check inventory. The UI is designed so you can demo everything without writing any code.
+
+---
+
+## How to Use the Demo UI (Step-by-Step)
+
+1. **Start the project** (see Quick Start above) and open [http://localhost:8000/](http://localhost:8000/) in your browser.
+2. **Try each section:**
+   - **Product Autocomplete:** Type at least 3 letters and click Autocomplete to see product suggestions.
+   - **Product List:** Click Load Products to see all products. Use the Product ID for other actions.
+   - **Product Detail:** Enter a Product ID and click Get Detail to see details.
+   - **Search Products:** Enter a keyword and click Search to filter products.
+   - **Stores:** Click Show Stores to list all stores.
+   - **Order Listing:** Enter a Store ID and click Show Orders to see orders for that store.
+   - **Order Product:** Enter Store ID, Product ID, and Quantity, then click Order to place an order.
+   - **Inventory:** Enter a Store ID and click Show Inventory to see all products and quantities for that store.
+3. **See results instantly** below each form. Errors and API responses are shown right on the page.
+
+You can mix and match: for example, find a product in Product List, then use its ID to place an order or check inventory. The UI is built so you can demo everything visually, no code needed!
 
 ---
 
