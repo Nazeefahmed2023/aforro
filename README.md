@@ -1,5 +1,3 @@
-
-
 # Aforro Backend — Interview-Ready Demo
 
 **Aforro** is a realistic Django REST API project designed to showcase practical backend engineering skills for interviews and real-world work. It’s easy to run, well-documented, and demonstrates:
@@ -88,23 +86,3 @@
 - **Tests:** Automated tests cover all major APIs and business logic.
 
 ---
-
-
-## 🤔 Why This Project?
-
-- **Shows real-world backend skills** (not just toy examples)
-- **Easy for interviewers to run and review**
-- **Ready for extension** (add user auth, admin UI, advanced filters, etc.)
-
----
-
-
-## 🙋‍♂️ Author & Reviewer Notes
-
-- **All code is written for clarity and realism** (see comments and docstrings)
-- **No AI artifacts or awkward code** — everything is human-quality
-- **Want to extend?** Just add your features — the codebase is clean and modular
-
----
-
-Happy reviewing! If you have questions, check the code comments or run the tests.
