@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aforro Demo Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        h1 { color: #2c3e50; }
+        section { margin-bottom: 2rem; }
+        label { display: block; margin-top: 1rem; }
+        input, select, button { margin-top: 0.5rem; }
+        .result { background: #f4f4f4; padding: 1rem; margin-top: 1rem; border-radius: 5px; }
+        .card-list { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+        .card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 1rem;
+            min-width: 220px;
+            max-width: 260px;
+            flex: 1 1 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .card-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .card-desc { color: #555; margin-bottom: 0.5rem; }
+        .card-meta { font-size: 0.95rem; color: #888; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+            <section>
+                <h2>Product Autocomplete</h2>
+                <label for="autocompleteQuery">Query (min 3 chars):</label>
+                <input type="text" id="autocompleteQuery">
+                <button onclick="autocompleteProducts()">Autocomplete</button>
+                <div id="autocompleteResults" class="result"></div>
+            </section>
+            <section>
+                <h2>Order Listing</h2>
+                <label for="orderListStoreId">Store ID:</label>
+                <input type="number" id="orderListStoreId" value="1">
+                <button onclick="fetchOrders()">Show Orders</button>
+                <div id="orders" class="result"></div>
+            </section>
+        <section>
+            <h2>Stores</h2>
+            <button onclick="fetchStores()">Show Stores</button>
+            <div id="stores" class="result"></div>
+        </section>
+    <h1>Aforro API Demo</h1>
+    <section>
+        <h2>Product List</h2>
+        <button onclick="fetchProducts()">Load Products</button>
+        <div id="products" class="card-list"></div>
+    </section>
+    <section>
+        <h2>Product Detail</h2>
+        <label for="productId">Product ID:</label>
+        <input type="number" id="productId">
+        <button onclick="fetchProductDetail()">Get Detail</button>
+        <div id="productDetail" class="result"></div>
+    </section>
+    <section>
+        <h2>Search Products</h2>
+        <label for="searchQuery">Query:</label>
+        <input type="text" id="searchQuery">
+        <button onclick="searchProducts()">Search</button>
+        <div id="searchResults" class="result"></div>
+    </section>
+    <section>
+        <h2>Order Product</h2>
+        <label for="orderStoreId">Store ID:</label>
+        <input type="number" id="orderStoreId" value="1">
+        <label for="orderProductId">Product ID:</label>
+        <input type="number" id="orderProductId">
+        <label for="orderQuantity">Quantity:</label>
+        <input type="number" id="orderQuantity" value="1">
+        <button onclick="orderProduct()">Order</button>
+        <div id="orderResult" class="result"></div>
+    </section>
+    <section>
+        <h2>Inventory</h2>
+        <label for="inventoryStoreId">Store ID:</label>
+        <input type="number" id="inventoryStoreId" value="1">
+        <button onclick="fetchInventory()">Show Inventory</button>
+        <div id="inventory" class="result"></div>
+    </section>
+    <script>
+                        function autocompleteProducts() {
+                            const q = document.getElementById('autocompleteQuery').value;
+                            if (!q || q.length < 3) {
+                                document.getElementById('autocompleteResults').innerHTML = '<div>Enter at least 3 characters.</div>';
+                                return;
+                            }
+                            fetch(`${apiBase}/search/suggest/?q=${encodeURIComponent(q)}`)
+                                .then(r => r.json())
+                                .then(data => {
+                                    const container = document.getElementById('autocompleteResults');
+                                    if (Array.isArray(data) && data.length > 0) {
+                                        container.innerHTML = data.map(title => `<div>${title}</div>`).join('');
+                                    } else {
+                                        container.innerHTML = '<div>No suggestions found.</div>';
+                                    }
+                                });
+                        }
+
+                        function fetchOrders() {
+                            const storeId = document.getElementById('orderListStoreId').value;
+                            if (!storeId) return alert('Enter Store ID');
+                            fetch(`${apiBase}/stores/${storeId}/orders/`)
+                                .then(r => r.json())
+                                .then(data => {
+                                    const container = document.getElementById('orders');
+                                    if (Array.isArray(data) && data.length > 0) {
+                                        container.innerHTML = data.map(order =>
+                                            `<div><b>Order #${order.id}</b> — Status: ${order.status} — Created: ${order.created_at} — Items: ${order.total_items}</div>`
+                                        ).join('');
+                                    } else {
+                                        container.innerHTML = '<div>No orders found for this store.</div>';
+                                    }
+                                });
+                        }
+                function fetchStores() {
+                    fetch(`${apiBase}/stores/`)
+                        .then(r => r.json())
+                        .then(data => {
+                            const container = document.getElementById('stores');
+                            if (Array.isArray(data) && data.length > 0) {
+                                container.innerHTML = data.map(store =>
+                                    `<div><b>ID:</b> ${store.id} &mdash; <b>Name:</b> ${store.name} &mdash; <b>Location:</b> ${store.location}</div>`
+                                ).join('');
+                            } else {
+                                container.innerHTML = '<div>No stores found.</div>';
+                            }
+                        });
+                }
+        const apiBase = '/api';
+        function fetchProducts() {
+            fetch(`${apiBase}/products/`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('products');
+                    container.innerHTML = '';
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(product => {
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                                card.innerHTML = `
+                                    <div class="card-title">${product.title || 'No Title'}</div>
+                                    <div class="card-desc">${product.description || ''}</div>
+                                    <div class="card-meta">Price: $${product.price ?? 'N/A'}</div>
+                                    <div class="card-meta">ID: ${product.id ?? ''}</div>
+                                `;
+                            container.appendChild(card);
+                        });
+                    } else {
+                        container.innerHTML = '<div>No products found.</div>';
+                    }
+                });
+        }
+        function fetchProductDetail() {
+            const id = document.getElementById('productId').value;
+            if (!id) return alert('Enter Product ID');
+            fetch(`${apiBase}/products/${id}/`)
+                .then(r => r.json())
+                .then(data => {
+                    let html = `<b>Title:</b> ${data.title}<br>`;
+                    html += `<b>Description:</b> ${data.description || ''}<br>`;
+                    html += `<b>Price:</b> $${data.price}<br>`;
+                    html += `<b>Category:</b> ${data.category && data.category.name ? data.category.name : ''}<br>`;
+                    html += `<b>ID:</b> ${data.id}`;
+                    document.getElementById('productDetail').innerHTML = html;
+                });
+        }
+        function searchProducts() {
+            const q = document.getElementById('searchQuery').value;
+            fetch(`${apiBase}/search/products/?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('searchResults').textContent = JSON.stringify(data, null, 2);
+                });
+        }
+        function orderProduct() {
+            const store_id = document.getElementById('orderStoreId').value;
+            const product_id = document.getElementById('orderProductId').value;
+            const quantity_requested = document.getElementById('orderQuantity').value;
+            fetch(`${apiBase}/orders/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    store_id,
+                    items: [
+                        { product_id, quantity_requested }
+                    ]
+                })
+            })
+                .then(async r => {
+                    let text = await r.text();
+                    let data;
+                    try { data = JSON.parse(text); } catch { data = text; }
+                    if (!r.ok) {
+                        document.getElementById('orderResult').innerHTML = `<span style='color:red;'>Error: ${r.status} ${r.statusText}<br>${text}</span>`;
+                    } else {
+                        document.getElementById('orderResult').textContent = JSON.stringify(data, null, 2);
+                    }
+                })
+                .catch(e => {
+                    document.getElementById('orderResult').innerHTML = `<span style='color:red;'>Request failed: ${e}</span>`;
+                });
+        }
+        function fetchInventory() {
+            const storeId = document.getElementById('inventoryStoreId').value;
+            if (!storeId) return alert('Enter Store ID');
+            fetch(`${apiBase}/stores/${storeId}/inventory/`)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('inventory');
+                    if (Array.isArray(data) && data.length > 0) {
+                        container.innerHTML = data.map(item =>
+                            `<div><b>${item.product_title}</b> (ID: ${item.product_id}) — $${item.price} — ${item.category_name} — Qty: ${item.quantity}</div>`
+                        ).join('');
+                    } else {
+                        container.innerHTML = '<div>No inventory found for this store.</div>';
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

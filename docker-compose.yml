@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    command: gunicorn home.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=home.settings
+      - REDIS_HOST=redis
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: aforro_db
+      POSTGRES_USER: aforro_user
+      POSTGRES_PASSWORD: aforro_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: celery -A home worker --loglevel=info
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=home.settings
+      - REDIS_HOST=redis
+
+volumes:
+  postgres_data:

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aforro Demo Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        h1 { color: #2c3e50; }
+        section { margin-bottom: 2rem; }
+        label { display: block; margin-top: 1rem; }
+        input, select, button { margin-top: 0.5rem; }
+        .result { background: #f4f4f4; padding: 1rem; margin-top: 1rem; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Aforro API Demo</h1>
+    <section>
+        <h2>Product List</h2>
+        <button onclick="fetchProducts()">Load Products</button>
+        <div id="products" class="result"></div>
+    </section>
+    <section>
+        <h2>Product Detail</h2>
+        <label for="productId">Product ID:</label>
+        <input type="number" id="productId">
+        <button onclick="fetchProductDetail()">Get Detail</button>
+        <div id="productDetail" class="result"></div>
+    </section>
+    <section>
+        <h2>Search Products</h2>
+        <label for="searchQuery">Query:</label>
+        <input type="text" id="searchQuery">
+        <button onclick="searchProducts()">Search</button>
+        <div id="searchResults" class="result"></div>
+    </section>
+    <section>
+        <h2>Order Product</h2>
+        <label for="orderProductId">Product ID:</label>
+        <input type="number" id="orderProductId">
+        <label for="orderQuantity">Quantity:</label>
+        <input type="number" id="orderQuantity" value="1">
+        <button onclick="orderProduct()">Order</button>
+        <div id="orderResult" class="result"></div>
+    </section>
+    <section>
+        <h2>Inventory</h2>
+        <button onclick="fetchInventory()">Show Inventory</button>
+        <div id="inventory" class="result"></div>
+    </section>
+    <script>
+        const apiBase = '/api';
+        function fetchProducts() {
+            fetch(`${apiBase}/products/`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('products').textContent = JSON.stringify(data, null, 2);
+                });
+        }
+        function fetchProductDetail() {
+            const id = document.getElementById('productId').value;
+            if (!id) return alert('Enter Product ID');
+            fetch(`${apiBase}/products/${id}/`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('productDetail').textContent = JSON.stringify(data, null, 2);
+                });
+        }
+        function searchProducts() {
+            const q = document.getElementById('searchQuery').value;
+            fetch(`${apiBase}/search/?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('searchResults').textContent = JSON.stringify(data, null, 2);
+                });
+        }
+        function orderProduct() {
+            const product = document.getElementById('orderProductId').value;
+            const quantity = document.getElementById('orderQuantity').value;
+            fetch(`${apiBase}/orders/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product, quantity })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('orderResult').textContent = JSON.stringify(data, null, 2);
+                });
+        }
+        function fetchInventory() {
+            fetch(`${apiBase}/inventory/`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('inventory').textContent = JSON.stringify(data, null, 2);
+                });
+        }
+    </script>
+</body>
+</html>
