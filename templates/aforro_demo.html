@@ -49,10 +49,9 @@
     </section>
     <section>
         <h2>Order Products</h2>
-        <label>Order Items (JSON array):</label>
-        <textarea id="orderItems" rows="4" cols="50" placeholder='[{"product_id": 1, "quantity_requested": 2}]'></textarea>
+        <div id="orderItemsContainer"></div>
+        <button onclick="addOrderItem()">Add Product</button>
         <button onclick="orderProduct()">Order</button>
-        <div style="font-size: 0.9em; color: #888; margin-top: 0.5rem;">Example: [{"product_id": 1, "quantity_requested": 2}, {"product_id": 2, "quantity_requested": 1}]</div>
         <div id="orderResult" class="result"></div>
     </section>
     <section>
@@ -61,6 +60,23 @@
         <div id="inventory" class="result"></div>
     </section>
     <script>
+                // --- Multi-product order UI logic ---
+                function addOrderItem(productId = '', quantity = 1) {
+                    const container = document.getElementById('orderItemsContainer');
+                    const idx = container.children.length;
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '0.5rem';
+                    div.innerHTML = `
+                        <label>Product ID: <input type="number" class="orderProductId" value="${productId}" min="1" style="width: 80px;"></label>
+                        <label>Quantity: <input type="number" class="orderQuantity" value="${quantity}" min="1" style="width: 60px;"></label>
+                        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+                    `;
+                    container.appendChild(div);
+                }
+                // Add one item by default
+                window.addEventListener('DOMContentLoaded', () => {
+                    addOrderItem();
+                });
         const apiBase = '/api';
         let currentPage = 1;
         let totalPages = 1;
@@ -122,13 +138,17 @@
             }
         }
         function orderProduct() {
-            let itemsJson = document.getElementById('orderItems').value;
-            let items;
-            try {
-                items = JSON.parse(itemsJson);
-                if (!Array.isArray(items)) throw new Error();
-            } catch (e) {
-                alert('Please enter a valid JSON array of items.');
+            const productInputs = document.querySelectorAll('.orderProductId');
+            const quantityInputs = document.querySelectorAll('.orderQuantity');
+            const items = [];
+            for (let i = 0; i < productInputs.length; i++) {
+                const product_id = parseInt(productInputs[i].value);
+                const quantity_requested = parseInt(quantityInputs[i].value);
+                if (!product_id || !quantity_requested) continue;
+                items.push({ product_id, quantity_requested });
+            }
+            if (items.length === 0) {
+                alert('Please add at least one product and quantity.');
                 return;
             }
             fetch(`${apiBase}/orders/`, {
