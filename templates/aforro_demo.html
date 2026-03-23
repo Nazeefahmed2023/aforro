@@ -48,12 +48,11 @@
         <div id="searchResults" class="result"></div>
     </section>
     <section>
-        <h2>Order Product</h2>
-        <label for="orderProductId">Product ID:</label>
-        <input type="number" id="orderProductId">
-        <label for="orderQuantity">Quantity:</label>
-        <input type="number" id="orderQuantity" value="1">
+        <h2>Order Products</h2>
+        <label>Order Items (JSON array):</label>
+        <textarea id="orderItems" rows="4" cols="50" placeholder='[{"product_id": 1, "quantity_requested": 2}]'></textarea>
         <button onclick="orderProduct()">Order</button>
+        <div style="font-size: 0.9em; color: #888; margin-top: 0.5rem;">Example: [{"product_id": 1, "quantity_requested": 2}, {"product_id": 2, "quantity_requested": 1}]</div>
         <div id="orderResult" class="result"></div>
     </section>
     <section>
@@ -123,12 +122,19 @@
             }
         }
         function orderProduct() {
-            const product = document.getElementById('orderProductId').value;
-            const quantity = document.getElementById('orderQuantity').value;
+            let itemsJson = document.getElementById('orderItems').value;
+            let items;
+            try {
+                items = JSON.parse(itemsJson);
+                if (!Array.isArray(items)) throw new Error();
+            } catch (e) {
+                alert('Please enter a valid JSON array of items.');
+                return;
+            }
             fetch(`${apiBase}/orders/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ product, quantity })
+                body: JSON.stringify({ items })
             })
                 .then(r => r.json())
                 .then(data => {
