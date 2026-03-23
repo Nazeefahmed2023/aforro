@@ -48,10 +48,22 @@
         <div id="searchResults" class="result"></div>
     </section>
     <section>
-        <h2>Order Products</h2>
-        <div id="orderItemsContainer"></div>
-        <button onclick="addOrderItem()">Add Product</button>
-        <button onclick="orderProduct()">Order</button>
+        <h2>Order Multiple Products</h2>
+        <div>
+            <table id="orderItemsTable" style="width:100%; max-width:500px; border-collapse:collapse;">
+                <thead>
+                    <tr style="background:#eaeaea;">
+                        <th style="padding:4px;">Product ID</th>
+                        <th style="padding:4px;">Quantity</th>
+                        <th style="padding:4px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="orderItemsContainer"></tbody>
+            </table>
+            <button type="button" onclick="addOrderItem()" style="margin-top:0.5rem;">Add Product</button>
+        </div>
+        <button onclick="orderProduct()" style="margin-top:1rem; background:#2ecc40; color:white; padding:0.5rem 1rem; border:none; border-radius:4px;">Place Order</button>
+        <button onclick="resetOrderForm()" style="margin-top:1rem; margin-left:0.5rem;">Reset</button>
         <div id="orderResult" class="result"></div>
     </section>
     <section>
@@ -61,22 +73,26 @@
     </section>
     <script>
                 // --- Multi-product order UI logic ---
-                function addOrderItem(productId = '', quantity = 1) {
-                    const container = document.getElementById('orderItemsContainer');
-                    const idx = container.children.length;
-                    const div = document.createElement('div');
-                    div.style.marginBottom = '0.5rem';
-                    div.innerHTML = `
-                        <label>Product ID: <input type="number" class="orderProductId" value="${productId}" min="1" style="width: 80px;"></label>
-                        <label>Quantity: <input type="number" class="orderQuantity" value="${quantity}" min="1" style="width: 60px;"></label>
-                        <button type="button" onclick="this.parentElement.remove()">Remove</button>
-                    `;
-                    container.appendChild(div);
-                }
-                // Add one item by default
-                window.addEventListener('DOMContentLoaded', () => {
-                    addOrderItem();
-                });
+        function addOrderItem(productId = '', quantity = 1) {
+            const container = document.getElementById('orderItemsContainer');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="number" class="orderProductId" value="${productId}" min="1" style="width: 80px;"></td>
+                <td><input type="number" class="orderQuantity" value="${quantity}" min="1" style="width: 60px;"></td>
+                <td><button type="button" onclick="this.closest('tr').remove()">Remove</button></td>
+            `;
+            container.appendChild(row);
+        }
+        function resetOrderForm() {
+            const container = document.getElementById('orderItemsContainer');
+            container.innerHTML = '';
+            addOrderItem();
+            document.getElementById('orderResult').textContent = '';
+        }
+        // Add one item by default
+        window.addEventListener('DOMContentLoaded', () => {
+            resetOrderForm();
+        });
         const apiBase = '/api';
         let currentPage = 1;
         let totalPages = 1;
