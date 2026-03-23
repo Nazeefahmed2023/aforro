@@ -31,7 +31,20 @@
         <h2>Search Products</h2>
         <label for="searchQuery">Query:</label>
         <input type="text" id="searchQuery">
-        <button onclick="searchProducts()">Search</button>
+        <label for="sortSelect">Sort by:</label>
+        <select id="sortSelect">
+            <option value="relevance">Relevance</option>
+            <option value="price">Price</option>
+            <option value="newest">Newest</option>
+        </select>
+        <label for="pageSize">Page size:</label>
+        <input type="number" id="pageSize" value="20" min="1" style="width: 60px;">
+        <button onclick="searchProducts(1)">Search</button>
+        <div style="margin-top: 0.5rem;">
+            <button onclick="prevPage()">Prev</button>
+            <span id="pageInfo"></span>
+            <button onclick="nextPage()">Next</button>
+        </div>
         <div id="searchResults" class="result"></div>
     </section>
     <section>
@@ -50,6 +63,12 @@
     </section>
     <script>
         const apiBase = '/api';
+        let currentPage = 1;
+        let totalPages = 1;
+        let lastQuery = '';
+        let lastSort = 'relevance';
+        let lastPageSize = 20;
+        let lastResults = null;
         function fetchProducts() {
             fetch(`${apiBase}/products/`)
                 .then(r => r.json())
@@ -66,13 +85,42 @@
                     document.getElementById('productDetail').textContent = JSON.stringify(data, null, 2);
                 });
         }
-        function searchProducts() {
+        function searchProducts(page = 1) {
             const q = document.getElementById('searchQuery').value;
-            fetch(`${apiBase}/search/?q=${encodeURIComponent(q)}`)
+            const sort = document.getElementById('sortSelect').value;
+            const pageSize = parseInt(document.getElementById('pageSize').value) || 20;
+            lastQuery = q;
+            lastSort = sort;
+            lastPageSize = pageSize;
+            currentPage = page;
+            const params = new URLSearchParams({
+                q,
+                sort,
+                page: page.toString(),
+                page_size: pageSize.toString()
+            });
+            fetch(`${apiBase}/search/products/?${params.toString()}`)
                 .then(r => r.json())
                 .then(data => {
-                    document.getElementById('searchResults').textContent = JSON.stringify(data, null, 2);
+                    lastResults = data;
+                    document.getElementById('searchResults').textContent = JSON.stringify(data.results, null, 2);
+                    // Pagination info
+                    const total = data.count || 0;
+                    totalPages = Math.ceil(total / pageSize) || 1;
+                    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
                 });
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                searchProducts(currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                searchProducts(currentPage + 1);
+            }
         }
         function orderProduct() {
             const product = document.getElementById('orderProductId').value;
